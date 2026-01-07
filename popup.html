@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Gen Prompter</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e7;
+    }
+    .header {
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      text-align: center;
+    }
+    .header h1 { font-size: 18px; font-weight: 600; }
+    .header .version { font-size: 11px; opacity: 0.9; margin-top: 4px; }
+    .content { padding: 20px; }
+    .form-group { margin-bottom: 16px; }
+    label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500; color: #a1a1aa;
+      margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .label-icon {
+      width: 16px; height: 16px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: bold; color: white;
+    }
+    .gemini-icon { background: linear-gradient(135deg, #4285f4, #34a853); }
+    .openai-icon { background: linear-gradient(135deg, #10a37f, #1a7f64); }
+    .claude-icon { background: linear-gradient(135deg, #d97757, #c4694a); }
+    input {
+      width: 100%; padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px; color: #e4e4e7; font-size: 14px;
+      transition: all 0.2s;
+    }
+    input:focus {
+      outline: none; border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+    input::placeholder { color: #71717a; }
+    .btn {
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none; border-radius: 8px;
+      color: white; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4); }
+    .status {
+      text-align: center; padding: 8px; margin-top: 12px;
+      border-radius: 6px; font-size: 13px; display: none;
+    }
+    .status.success { display: block; background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+    .status.error { display: block; background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .usage {
+      margin-top: 20px; padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .usage h3 { font-size: 12px; color: #a1a1aa; margin-bottom: 10px; text-transform: uppercase; }
+    .usage ol { font-size: 13px; line-height: 1.8; padding-left: 20px; color: #d4d4d8; }
+    .services { margin-top: 16px; }
+    .service-group {
+      margin-bottom: 12px; padding: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .service-group h4 { font-size: 12px; color: #a5b4fc; margin-bottom: 6px; }
+    .platforms { padding-left: 0; list-style: none; font-size: 11px; line-height: 1.5; color: #9ca3af; }
+    .features {
+      margin-top: 16px; padding: 12px;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 8px; border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+    .features h3 { font-size: 11px; color: #a5b4fc; margin-bottom: 8px; text-transform: uppercase; }
+    .features-list { font-size: 11px; color: #9ca3af; line-height: 1.6; }
+    .footer {
+      padding: 12px 20px; text-align: center;
+      font-size: 11px; color: #71717a;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Image Gen Prompter</h1>
+    <div class="version">v4.0.6 - API Only</div>
+  </div>
+  <div class="content">
+    <div class="form-group">
+      <label><span class="label-icon gemini-icon">G</span> Gemini API Key</label>
+      <input type="password" id="geminiApiKey" placeholder="Enter Gemini API key...">
+    </div>
+    <div class="form-group">
+      <label><span class="label-icon openai-icon">O</span> OpenAI API Key</label>
+      <input type="password" id="openaiApiKey" placeholder="Enter OpenAI API key...">
+    </div>
+    <div class="form-group">
+      <label><span class="label-icon claude-icon">C</span> Claude API Key</label>
+      <input type="password" id="claudeApiKey" placeholder="Enter Claude API key...">
+    </div>
+    <button class="btn" id="saveBtn">Save Settings</button>
+    <div class="status" id="status"></div>
+    <div class="usage">
+      <h3>How to Use</h3>
+      <ol>
+        <li>Right-click on any image</li>
+        <li>Select "Image Gen Prompter"</li>
+        <li>Choose AI service and platform</li>
+      </ol>
+      <div class="services">
+        <div class="service-group">
+          <h4>Gemini API (Flash)</h4>
+          <ul class="platforms"><li>Midjourney v6.1 / SDXL / Flux.1 / DALL-E 3 / All</li></ul>
+        </div>
+        <div class="service-group">
+          <h4>OpenAI API (GPT-4o)</h4>
+          <ul class="platforms"><li>Midjourney v6.1 / SDXL / Flux.1 / DALL-E 3 / All</li></ul>
+        </div>
+        <div class="service-group">
+          <h4>Claude API (Sonnet)</h4>
+          <ul class="platforms"><li>Midjourney v6.1 / SDXL / Flux.1 / DALL-E 3 / All</li></ul>
+        </div>
+      </div>
+    </div>
+    <div class="features">
+      <h3>Ultra-Detail Analysis (10 Categories, 200+ Attributes)</h3>
+      <div class="features-list">Subject ID - Face Micro-Details - Hair/Head - Pose/Gesture - Clothing - Composition - Environment - Lighting (40+) - Color Science - Style/Technical</div>
+    </div>
+  </div>
+  <div class="footer">Gemini Flash / GPT-4o / Claude Sonnet - API Mode</div>
+  <script src="popup.js"></script>
+</body>
+</html>
